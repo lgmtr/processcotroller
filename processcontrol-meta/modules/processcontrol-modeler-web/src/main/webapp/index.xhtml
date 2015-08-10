@@ -1,51 +1,406 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets">
+	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:jsf="http://xmlns.jcp.org/jsf">
 <h:head>
-	<title>Process Modeller</title>
+	<title>BPMN Editor</title>
+	<!-- Copyright 1998-2015 by Northwoods Software Corporation. -->
+	<script src="scripts/go.js"></script>
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+	<script src="scripts/DrawCommandHandler.js"></script>
+	<link href="css/BPMN.css" rel="stylesheet" type="text/css" />
+	<script src="scripts/BPMNClasses.js"></script>
+	<script src="scripts/BPMN.js"></script>
+	<script type="text/javascript">
+		function save(filename, jsonFile) {
 
-	<!-- 	<script type="text/javascript">
-		function closeDialog() {
-			user_login.hide();
-			user_registration.hide();
+			document.getElementById('myForm:procesName').value = saveName;
+			document.getElementById('myForm:procesInJson').value = myDiagram.model
+					.toJson();
+
 		}
-	</script> -->
+	</script>
 </h:head>
-<h:body>
-	<h:form>
-
-		<p:growl id="msgs" showDetail="true" />
-
-		<p:menubar>
-			<p:submenu label="File">
-				<p:menuitem value="New" actionListener="#{modelerBean.newModel()}" ajax="false"/>
+<h:body onload="init()">
+	<h:form id="myForm">
+		<p:menubar style="width: 100%">
+			<p:submenu label="File" icon="">
+				<p:menuitem value="New" onclick="newDocument()" />
 				<p:menuitem value="Open" />
-				<p:menuitem value="Save" />
+				<p:menuitem value="Save" onclick="saveDocumentAs()" actionListener="#{modelerBean.doCommand()}" />
 			</p:submenu>
-
-			<p:submenu label="Add Element">
-				<p:menuitem value="Start" actionListener="#{modelerBean.addStart()}" disabled="#{modelerBean.startElementIsDisabled}" ajax="false" />
-				<p:menuitem value="End" actionListener="#{modelerBean.addEnd()}" disabled="#{modelerBean.otherElementsAreDisabled}" ajax="false" />
-				<p:submenu label="Task">
-					<p:menuitem value="Aktor-Task" disabled="#{modelerBean.otherElementsAreDisabled}" />
-					<p:menuitem value="Sensor-Task" disabled="#{modelerBean.otherElementsAreDisabled}" />
-				</p:submenu>
-				<p:menuitem value="Sub-Process" disabled="#{modelerBean.otherElementsAreDisabled}" />
-				<p:submenu label="Gateway">
-					<p:menuitem value="XOR-Gateway" disabled="#{modelerBean.otherElementsAreDisabled}" />
-					<p:menuitem value="AND-Gateway" disabled="#{modelerBean.otherElementsAreDisabled}" />
-				</p:submenu>
+			<p:submenu label="Edit">
+				<p:menuitem value="Undo" onclick="myDiagram.commandHandler.undo()" />
+				<p:menuitem value="Redo" onclick="myDiagram.commandHandler.redo()" />
+				<p:menuitem value="Cut" onclick="myDiagram.commandHandler.cutSelection()" />
+				<p:menuitem value="Copy" onclick="myDiagram.commandHandler.copySelection()" />
+				<p:menuitem value="Paste" onclick="myDiagram.commandHandler.pasteSelection()" />
+				<p:menuitem value="Delete" onclick="myDiagram.commandHandler.deleteSelection()" />
+				<p:menuitem value="Select All" onclick="myDiagram.commandHandler.selectAll()" />
 			</p:submenu>
-
+			<p:submenu label="Align">
+				<p:menuitem value="Left Sides" onclick="myDiagram.commandHandler.alignLeft()" />
+				<p:menuitem value="Right Sides" onclick="myDiagram.commandHandler.alignRight()" />
+				<p:menuitem value="Tops" onclick="myDiagram.commandHandler.alignTop()" />
+				<p:menuitem value="Bottoms" onclick="myDiagram.commandHandler.alignBottom()" />
+				<p:menuitem value="Center X" onclick="myDiagram.commandHandler.alignCenterX()" />
+				<p:menuitem value="Center Y" onclick="myDiagram.commandHandler.alignCenterY()" />
+			</p:submenu>
+			<p:submenu label="Space">
+				<p:menuitem value="In Row..." onclick="myDiagram.commandHandler.alignRow(askSpace())" />
+				<p:menuitem value="In Column..." onclick="myDiagram.commandHandler.alignColumn(askSpace())" />
+			</p:submenu>
 		</p:menubar>
-		<p:diagram id="diagram" value="#{modelerBean.model}" style="height:95%" styleClass="ui-widget-content" var="el">
-			<f:facet name="element">
-				<h:outputText value="#{el.name}" style="display:block;margin-top:1em;" />
-				<p:graphicImage value="resources/images/#{el.image}" />
-			</f:facet>
-			<p:ajax event="connect" listener="#{modelerBean.onConnect}" />
-			<p:ajax event="disconnect" listener="#{modelerBean.onDisconnect}" />
-			<p:ajax event="connectionChange" listener="#{modelerBean.onConnectionChange}" />
-		</p:diagram>
+
+		<div>
+			<div id="currentFile">(Unsaved File)</div>
+			<ul id="menuui" style="visibility: hidden;">
+				<li><a href="#">File</a>
+					<ul>
+						<li><a href="#" onclick="newDocument()">New</a></li>
+						<li><a href="#" onclick="openDocument()">Open...</a></li>
+						<li><a href="#" onclick="saveDocument()">Save</a></li>
+						<li><a href="#" onclick="saveDocumentAs()">Save As...</a></li>
+						<li><a href="#" onclick="removeDocument()">Delete...</a></li>
+					</ul></li>
+				<li><a href="#">Edit</a>
+					<ul>
+						<li><a href="#" onclick="myDiagram.commandHandler.undo()">Undo</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.redo()">Redo</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.cutSelection()">Cut</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.copySelection()">Copy</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.pasteSelection()">Paste</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.deleteSelection()">Delete</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.selectAll()">Select All</a></li>
+					</ul></li>
+				<li><a href="#">Align</a>
+					<ul>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignLeft()">Left Sides</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignRight()">Right Sides</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignTop()">Tops</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignBottom()">Bottoms</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignCenterX()">Center X</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignCenterY()">Center Y</a></li>
+					</ul></li>
+				<li><a href="#">Space</a>
+					<ul>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignRow(askSpace())">In Row...</a></li>
+						<li><a href="#" onclick="myDiagram.commandHandler.alignColumn(askSpace())">In Column...</a></li>
+					</ul></li>
+				<li><a href="#">Options</a>
+					<ul>
+						<li><a href="#"> <input id="grid" type="checkbox" name="options" value="grid" onclick="updateGridOption()" />Grid
+						</a></li>
+						<li><a href="#"> <input id="snap" type="checkbox" name="options" value="0" onclick="updateSnapOption()" />Snapping
+						</a></li>
+					</ul></li>
+			</ul>
+			<!--END menu bar -->
+
+
+
+			<!-- Styling for this portion is in BPMN.css -->
+			<div id="PaletteAndDiagram">
+				<div id="sideBar">
+
+					<span style="display: inline-block; vertical-align: top; padding: 5px; width: 100%">
+						<div id="accordion">
+							<h4>Level 1 items</h4>
+							<div>
+								<div id="myPaletteLevel1" class="myPalette"></div>
+							</div>
+							<h4>Level 2 items</h4>
+							<div>
+								<div id="myPaletteLevel2" class="myPalette"></div>
+							</div>
+							<h4>Other items</h4>
+							<div>
+								<div id="myPaletteLevel3" class="myPalette"></div>
+							</div>
+						</div>
+					</span>
+
+					<div class="handle">Overview:</div>
+					<div id="myOverview"></div>
+				</div>
+				<div id="myDiagram" style="height: 80%"></div>
+
+			</div>
+
+			<div id="openDocument" class="draggable">
+				<div id="openDraggableHandle" class="handle">Open File</div>
+				<div id="openText" class="elementText">Choose file to open...</div>
+				<select id="mySavedFiles" class="mySavedFiles"></select> <br />
+				<button id="openBtn" class="elementBtn" type="button" onclick="loadFile()" style="margin-left: 70px">Open</button>
+				<button id="cancelBtn" class="elementBtn" type="button" onclick="closeElement('openDocument')">Cancel</button>
+			</div>
+
+			<div id="removeDocument" class="draggable">
+				<div id="removeDraggableHandle" class="handle">Delete File</div>
+				<div id="removeText" class="elementText">Choose file to remove...</div>
+				<select id="mySavedFiles2" class="mySavedFiles"></select> <br />
+				<button id="removeBtn" class="elementBtn" type="button" onclick="removeFile()" style="margin-left: 70px">Remove</button>
+				<button id="cancelBtn2" class="elementBtn" type="button" onclick="closeElement('removeDocument')">Cancel</button>
+			</div>
+
+			<!-- A simple preset model and JSON save/load buttons are hidden on the page -->
+			<div style="visibility: hidden;">
+				<div class="handle">JSON:</div>
+				<div id="buttons">
+					<button id="loadModel" onclick="loadModel()">Load</button>
+					<button id="saveModel" onclick="saveModel()">Save</button>
+				</div>
+				<textarea id="mySavedModel" style="width: 100%; height: 300px">
+				{ 
+	"class": "go.GraphLinksModel",  
+	"copiesArrays": true,  
+	"copiesArrayObjects": true,  
+	"linkFromPortIdProperty": "fromPort",  
+	"linkToPortIdProperty": "toPort",  
+	"modelData": {
+		"position":"-36.80055711041291 91"
+	},  
+	"nodeDataArray": [ 
+		{
+			"key":101, 
+			"category":"event", 
+			"text":"Start", 
+			"eventType":1, 
+			"eventDimension":1, 
+			"item":"start", 
+			"loc":"-10.300557110412967 300.9594815745736"
+		},
+		{
+			"key":131, 
+			"category":"activity", 
+			"text":"Bevor XOR", 
+			"item":"generic task", 
+			"taskType":0, 
+			"loc":"111.19944288958703 306.7594815745736"
+		},
+		{
+			"key":204, 
+			"category":"gateway", 
+			"text":"Exclusive", 
+			"gatewayType":4, 
+			"loc":"264.69944288958703 306.10948157457364"
+		},
+		{
+			"key":-4, 
+			"category":"activity", 
+			"text":"Simple Lane", 
+			"item":"generic task", 
+			"taskType":0, 
+			"loc":"412.6994428895871 189.10948157457364"
+		},
+		{
+			"key":-5, 
+			"category":"activity", 
+			"text":"Complex Lane", 
+			"item":"generic task", 
+			"taskType":0, 
+			"loc":"414.69944288958703 428.1094815745736"
+		},
+		{
+			"key":-6, 
+			"category":"gateway", 
+			"text":"Exclusive", 
+			"gatewayType":4, 
+			"loc":"878.6994428895871 302.10948157457364"
+		},
+		{
+			"key":201, 
+			"category":"gateway", 
+			"text":"p1:start", 
+			"gatewayType":1, 
+			"loc":"553.6994428895871 602.1094815745737"
+		},
+		{
+			"key":-8, 
+			"category":"activity", 
+			"text":"Parallel Task 1", 
+			"item":"generic task", 
+			"taskType":0, 
+			"loc":"698.6994428895871 513.1094815745736"
+		},
+		{
+			"key":-9, 
+			"category":"activity", 
+			"text":"Parallel Task 2", 
+			"item":"generic task", 
+			"taskType":0, 
+			"loc":"698.6994428895871 713.1094815745736"
+		},
+		{
+			"key":-10, 
+			"category":"gateway", 
+			"text":"p1:end", 
+			"gatewayType":1, 
+			"loc":"858.6994428895871 605.1094815745737"
+		},
+		{
+			"key":104, 
+			"category":"event", 
+			"text":"End", 
+			"eventType":1, 
+			"eventDimension":8, 
+			"item":"End", 
+			"loc":"1195.699442889587 300.1094815745737"
+		},
+		{
+			"key":-12, 
+			"category":"activity", 
+			"text":"End Task", 
+			"item":"generic task", 
+			"taskType":0, 
+			"loc":"1056.699442889587 302.10948157457364"
+		} 
+	],  
+	"linkDataArray": [ 
+		{
+			"from":101, 
+			"to":131, 
+			"fromPort":"", 
+			"toPort":"", 
+			"points":[
+				11.199442889587033,300.9594815745736,21.199442889587033,300.9594815745736,26.199442889587033,300.9594815745736,26.199442889587033,306.7594815745736,31.199442889587033,306.7594815745736,51.19944288958703,306.7594815745736
+			]
+		},
+		{
+			"from":131, 
+			"to":204, 
+			"fromPort":"", 
+			"toPort":"", 
+			"points":[
+				171.19944288958703,306.7594815745736,181.19944288958703,306.7594815745736,192.69944288958703,306.7594815745736,192.69944288958703,306.10948157457364,204.19944288958703,306.10948157457364,224.19944288958703,306.10948157457364
+			]
+		},
+		{
+			"from":204, 
+			"to":-4, 
+			"fromPort":"", 
+			"toPort":"", 
+			"visible":true, 
+			"points":[
+				305.19944288958703,306.10948157457364,315.19944288958703,306.10948157457364,323.9494428895871,306.10948157457364,323.9494428895871,189.10948157457364,332.6994428895871,189.10948157457364,352.6994428895871,189.10948157457364
+			], 
+			"text":"complex:false"
+		},
+		{
+			"from":204, 
+			"to":-5, 
+			"fromPort":"", 
+			"toPort":"", 
+			"visible":true, 
+			"points":[
+				305.19944288958703,306.10948157457364,315.19944288958703,306.10948157457364,324.94944288958703,306.10948157457364,324.94944288958703,428.1094815745736,334.69944288958703,428.1094815745736,354.69944288958703,428.1094815745736
+			], 
+			"text":"complex:true"
+		},
+		{
+			"from":-5, 
+			"to":201, 
+			"fromPort":"", 
+			"toPort":"", 
+			"points":[
+				474.69944288958703,428.1094815745736,484.69944288958703,428.1094815745736,488.9494428895871,428.1094815745736,488.9494428895871,602.1094815745737,493.1994428895871,602.1094815745737,513.1994428895871,602.1094815745737
+			]
+		},
+		{
+			"from":201, 
+			"to":-8, 
+			"fromPort":"", 
+			"toPort":"", 
+			"visible":true, 
+			"points":[
+				594.1994428895871,602.1094815745737,604.1994428895871,602.1094815745737,611.4494428895871,602.1094815745737,611.4494428895871,513.1094815745736,618.6994428895871,513.1094815745736,638.6994428895871,513.1094815745736
+			], 
+			"text":""
+		},
+		{
+			"from":201, 
+			"to":-9, 
+			"fromPort":"", 
+			"toPort":"", 
+			"visible":true, 
+			"points":[
+				594.1994428895871,602.1094815745737,604.1994428895871,602.1094815745737,611.4494428895871,602.1094815745737,611.4494428895871,713.1094815745736,618.6994428895871,713.1094815745736,638.6994428895871,713.1094815745736
+			], 
+			"text":""
+		},
+		{
+			"from":-8, 
+			"to":-10, 
+			"fromPort":"", 
+			"toPort":"", 
+			"points":[
+				758.6994428895871,513.1094815745736,768.6994428895871,513.1094815745736,783.4494428895871,513.1094815745736,783.4494428895871,605.1094815745737,798.1994428895871,605.1094815745737,818.1994428895871,605.1094815745737
+			]
+		},
+		{
+			"from":-9, 
+			"to":-10, 
+			"fromPort":"", 
+			"toPort":"", 
+			"points":[
+				758.6994428895871,713.1094815745736,768.6994428895871,713.1094815745736,783.4494428895871,713.1094815745736,783.4494428895871,605.1094815745737,798.1994428895871,605.1094815745737,818.1994428895871,605.1094815745737
+			]
+		},
+		{
+			"from":-10, 
+			"to":-6, 
+			"fromPort":"", 
+			"toPort":"", 
+			"visible":true, 
+			"points":[
+				858.6994428895871,564.6094815745737,858.6994428895871,554.6094815745737,858.6994428895871,464.75948157457367,818.1994428895871,464.75948157457367,818.1994428895871,302.10948157457364,838.1994428895871,302.10948157457364
+			], 
+		"text":""
+		},
+		{
+			"from":-4, 
+			"to":-6, 
+			"fromPort":"", 
+			"toPort":"", 
+			"points":[
+				472.6994428895871,189.10948157457364,482.6994428895871,189.10948157457364,650.4494428895871,189.10948157457364,650.4494428895871,302.10948157457364,818.1994428895871,302.10948157457364,838.1994428895871,302.10948157457364
+			]
+		},
+		{
+			"from":-6, 
+			"to":-12, 
+			"fromPort":"", 
+			"toPort":"", 
+			"visible":true, 
+			"points":[
+				919.1994428895871,302.10948157457364,929.1994428895871,302.10948157457364,952.9494428895871,302.10948157457364,952.9494428895871,302.10948157457364,976.6994428895871,302.10948157457364,996.6994428895871,302.10948157457364
+			]
+		},
+		{
+			"from":-12, 
+			"to":104, 
+			"fromPort":"", 
+			"toPort":"", 
+			"points":[
+				1116.699442889587,302.10948157457364,1126.699442889587,302.10948157457364,1139.699442889587,302.10948157457364,1139.699442889587,300.1094815745737,1152.699442889587,300.1094815745737,1172.699442889587,300.1094815745737
+			]
+		} 
+	]
+}
+			</textarea>
+
+				//colors for lanes: lightyellow, lightblue, lavender, lightgray, mistyrose
+
+				<!--  embedded pool data
+        { "key": "Pool2a", "text": "Pool2a", "isGroup": "true", "category": "Pool", "group": "Pool2" },
+            { "key": "Lane5a", "text": "Lane5a", "isGroup": "true", "group": "Pool2a", "color": "pink", "category": "Lane" },
+            { "key": "Lane6a", "text": "Lane6a", "isGroup": "true", "group": "Pool2a", "color": "gray", "category": "Lane" },         
+-->
+				<p:inputText id="procesName" value="#{modelerBean.prozessName}" />
+				<p:inputText id="procesInJson" value="#{modelerBean.prozessInJson}" />
+				<p:commandButton actionListener="#{modelerBean.doCommand()}" />
+			</div>
+		</div>
 	</h:form>
 </h:body>
 </html>
