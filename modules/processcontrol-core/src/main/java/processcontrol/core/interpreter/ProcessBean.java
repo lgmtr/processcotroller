@@ -5,11 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
 import processcontrol.core.json.model.BPMNModel;
 import processcontrol.core.model.DSLModel;
 import processcontrol.core.model.Node;
 
-public class ProcessBean implements Runnable {
+@Service
+public class ProcessBean {
 
 	private DSLModel dslModel;
 
@@ -19,7 +24,20 @@ public class ProcessBean implements Runnable {
 
 	private Map<Long, Map<String, Node>> parallelNodePairs;
 	
+	@Resource
+	private TaskInterpreter taskInterpreter;
+	
 	public ProcessBean(BPMNModel bpmnModel, Map<String, ProcessVariable> processVariables) {
+		dslModel = new DSLModel(bpmnModel);
+		this.processVariables = processVariables;
+		this.parallelNodePairs = dslModel.findParallelNodePairs();
+		generateSubProcesses(parallelNodePairs);
+	}
+	
+	public ProcessBean() {
+	}
+	
+	public void setProcessBean(BPMNModel bpmnModel, Map<String, ProcessVariable> processVariables){
 		dslModel = new DSLModel(bpmnModel);
 		this.processVariables = processVariables;
 		this.parallelNodePairs = dslModel.findParallelNodePairs();
@@ -33,7 +51,7 @@ public class ProcessBean implements Runnable {
 				Map<String, Node> specificSubProcess = parallelNodePairs.get(key);
 				List<SubProcessBean> subProcessList = new ArrayList<SubProcessBean>();
 				for (Node node : dslModel.getNextNodes(specificSubProcess.get("start"), processVariables)) {
-					subProcessList.add(new SubProcessBean(key, dslModel, node, processVariables, parallelNodePairs));
+					subProcessList.add(new SubProcessBean(key, dslModel, node, processVariables, parallelNodePairs, taskInterpreter));
 				}
 				subProcesses.put(key, subProcessList);
 			}
@@ -45,13 +63,21 @@ public class ProcessBean implements Runnable {
 			}
 		}
 	}
-
-	@Override
-	public void run() {
+	
+	public void start(){
 		Node start = dslModel.getStart();
-		SubProcessBean mainProcess = new SubProcessBean(System.currentTimeMillis(), dslModel, start, processVariables, parallelNodePairs);
+		SubProcessBean mainProcess = new SubProcessBean(System.currentTimeMillis(), dslModel, start, processVariables, parallelNodePairs, taskInterpreter);
 		mainProcess.setSubProcesses(subProcesses);
 		Thread t = new Thread(mainProcess);
 		t.start();
 	}
+
+//	@Override
+//	public void run() {
+//		Node start = dslModel.getStart();
+//		SubProcessBean mainProcess = new SubProcessBean(System.currentTimeMillis(), dslModel, start, processVariables, parallelNodePairs);
+//		mainProcess.setSubProcesses(subProcesses);
+//		Thread t = new Thread(mainProcess);
+//		t.start();
+//	}
 }

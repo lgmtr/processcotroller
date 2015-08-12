@@ -9,6 +9,8 @@ import processcontrol.core.model.Node;
 
 public class SubProcessBean implements Runnable {
 
+	private TaskInterpreter taskInterpreter;
+	
 	private long processKey;
 
 	private Node start;
@@ -21,13 +23,14 @@ public class SubProcessBean implements Runnable {
 	
 	private Map<Long, Map<String, Node>> parallelNodePairs;
 
-	public SubProcessBean(long processKey, DSLModel dslModel, Node start, Map<String, ProcessVariable> processVariables, Map<Long, Map<String, Node>> parallelNodePairs) {
+	public SubProcessBean(long processKey, DSLModel dslModel, Node start, Map<String, ProcessVariable> processVariables, Map<Long, Map<String, Node>> parallelNodePairs, TaskInterpreter taskInterpreter) {
 		this.processKey = processKey;
 		this.processVariables = processVariables;
 		this.dslModel = dslModel;
 		this.start = start;
 		this.subProcesses = null;
 		this.parallelNodePairs = parallelNodePairs;
+		this.taskInterpreter = taskInterpreter;
 	}
 	
 	public void setSubProcesses(Map<Long, List<SubProcessBean>> subProcesses){
@@ -42,7 +45,8 @@ public class SubProcessBean implements Runnable {
 
 	private void tryTaskCommand(Node node) {
 		if (ActionType.TASK.equals(node.getType())) {
-			System.out.println("Command: " + node.getCommand() + " / Thread: " + Thread.currentThread().getName());
+			taskInterpreter.taskCommand(node.getCommand());
+//			System.out.println("Command: " + node.getCommand() + " / Thread: " + Thread.currentThread().getName());
 		}
 	}
 

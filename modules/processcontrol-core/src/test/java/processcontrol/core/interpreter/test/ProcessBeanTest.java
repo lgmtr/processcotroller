@@ -4,17 +4,25 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import javax.annotation.Resource;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.annotations.Test;
 
 import processcontrol.core.interpreter.ProcessBean;
 import processcontrol.core.interpreter.ProcessVariable;
 import processcontrol.core.json.model.BPMNModel;
 
-public class ProcessBeanTest {
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@ContextConfiguration("classpath:test-context.xml")
+public class ProcessBeanTest extends AbstractTestNGSpringContextTests{
+	
+	@Resource
+	private ProcessBean processBean;
 	
 	@Test
 	public void processBeanTestSimple() throws JsonParseException, JsonMappingException, IOException{
@@ -26,8 +34,8 @@ public class ProcessBeanTest {
 		processVariable.setValue(new Boolean(false));
 		processVariable.setClassOfValue(Boolean.class);
 		processVariables.put("complex", processVariable);
-		Thread t = new Thread(new ProcessBean(bpmnModel, processVariables));
-		t.start();
+		processBean.setProcessBean(bpmnModel, processVariables);
+		processBean.start();
 	}
 	
 	@Test
@@ -40,39 +48,7 @@ public class ProcessBeanTest {
 		processVariable.setValue(new Boolean(true));
 		processVariable.setClassOfValue(Boolean.class);
 		processVariables.put("complex", processVariable);
-		Thread t = new Thread(new ProcessBean(bpmnModel, processVariables));
-		t.start();
+		processBean.setProcessBean(bpmnModel, processVariables);
+		processBean.start();
 	}
-	
-	@Test
-	public void processBeanStressTestComplex() throws JsonParseException, JsonMappingException, IOException, InterruptedException{
-		ClassLoader classLoader = getClass().getClassLoader();
-		ObjectMapper mapper = new ObjectMapper();
-		BPMNModel bpmnModel = mapper.readValue(classLoader.getResourceAsStream("test_files/example_process.json"), BPMNModel.class);
-		Map<String, ProcessVariable> processVariables = new HashMap<String, ProcessVariable>();;
-		ProcessVariable processVariable = new ProcessVariable();
-		processVariable.setValue(new Boolean(true));
-		processVariable.setClassOfValue(Boolean.class);
-		processVariables.put("complex", processVariable);
-		Thread[] t = new Thread[1000];
-		long before = System.currentTimeMillis();
- 		for(int i = 0; i <= 999; i++){
- 			t[i] = new Thread(new ProcessBean(bpmnModel, processVariables));
- 			t[i].start();
- 		}
- 		for(int i = 0; i <= 999; i++){
- 			t[i].join();
- 		}
- 		System.out.println("Runtime: " + (System.currentTimeMillis() - before));
-	}
-	
-	@Test
-	public void sysoTest(){
-		long before = System.currentTimeMillis();
-		for(int i = 0; i <= 5999; i++){
-			System.out.println(i);
-		}
-		System.out.println("Runtime: " + (System.currentTimeMillis() - before));
-	}
-
 }
