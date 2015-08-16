@@ -3,13 +3,16 @@ package processcontrol.core.interpreter;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
+import org.springframework.context.ApplicationContext;
+
 import processcontrol.core.model.ActionType;
 import processcontrol.core.model.DSLModel;
 import processcontrol.core.model.Node;
 
 public class SubProcessBean implements Runnable {
 
-	private TaskInterpreter taskInterpreter;
+	private ApplicationContext applicationContext;
 	
 	private long processKey;
 
@@ -23,16 +26,16 @@ public class SubProcessBean implements Runnable {
 	
 	private Map<Long, Map<String, Node>> parallelNodePairs;
 
-	public SubProcessBean(long processKey, DSLModel dslModel, Node start, Map<String, ProcessVariable> processVariables, Map<Long, Map<String, Node>> parallelNodePairs, TaskInterpreter taskInterpreter) {
+	public SubProcessBean(long processKey, DSLModel dslModel, Node start, Map<String, ProcessVariable> processVariables, Map<Long, Map<String, Node>> parallelNodePairs, ApplicationContext applicationContext) {
 		this.processKey = processKey;
 		this.processVariables = processVariables;
 		this.dslModel = dslModel;
 		this.start = start;
 		this.subProcesses = null;
 		this.parallelNodePairs = parallelNodePairs;
-		this.taskInterpreter = taskInterpreter;
+		this.applicationContext = applicationContext;
 	}
-	
+
 	public void setSubProcesses(Map<Long, List<SubProcessBean>> subProcesses){
 		this.subProcesses = subProcesses;
 	}
@@ -45,8 +48,8 @@ public class SubProcessBean implements Runnable {
 
 	private void tryTaskCommand(Node node) {
 		if (ActionType.TASK.equals(node.getType())) {
-			taskInterpreter.taskCommand(node.getCommand());
-//			System.out.println("Command: " + node.getCommand() + " / Thread: " + Thread.currentThread().getName());
+			TaskInterpreter taskInterpreter = applicationContext.getBean(TaskInterpreter.class);
+			taskInterpreter.taskCommand(node.getCommand(), DateTime.now().toString("hh:mm:ss:SSS"));
 		}
 	}
 
@@ -70,12 +73,13 @@ public class SubProcessBean implements Runnable {
 					}
 					List<Node> newNodeList = dslModel.getNextNodes(parallelNodePairs.get(node.getParallelKey()).get("end"),
 							processVariables);
-					if (newNodeList != null)
+					if (newNodeList != null){
 						handleNode(newNodeList);
+					}
 				}
 			} else if(ActionType.END.equals(node.getType())){
-				//TODO Rework end message
-				System.out.println("Process Ended!");
+				TaskInterpreter taskInterpreter = applicationContext.getBean(TaskInterpreter.class);
+				taskInterpreter.taskCommand("DONE", DateTime.now().toString("hh:mm:ss:SSS"));
 			} else {
 				List<Node> newNodeList = dslModel.getNextNodes(node, processVariables);
 				if (newNodeList != null)

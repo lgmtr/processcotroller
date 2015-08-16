@@ -27,7 +27,7 @@
 			<p:submenu label="File" icon="">
 				<p:menuitem value="New" onclick="newDocument()" />
 				<p:menuitem value="Open" />
-				<p:menuitem value="Save" onclick="saveDocumentAs()" actionListener="#{modelerBean.doCommand()}" />
+				<p:menuitem value="Save" onclick="saveDocumentAs()" actionListener="#{modelerBean.save()}" />
 			</p:submenu>
 			<p:submenu label="Edit">
 				<p:menuitem value="Undo" onclick="myDiagram.commandHandler.undo()" />
@@ -51,54 +51,14 @@
 				<p:menuitem value="In Column..." onclick="myDiagram.commandHandler.alignColumn(askSpace())" />
 			</p:submenu>
 			<p:submenu label="Test">
-				<p:menuitem value="Start Examplel Simple Lane"/>
-				<p:menuitem value="Start Examplel Complex Lane"/>
+				<p:menuitem value="Start Examplel Simple Lane" onclick="PF('test_dialog').show();" actionListener="#{modelerBean.simple()}" />
+				<p:menuitem value="Start Examplel Complex Lane" onclick="PF('test_dialog').show();" actionListener="#{modelerBean.complex()}" />
 			</p:submenu>
 		</p:menubar>
 
 		<div>
 			<div id="currentFile">(Unsaved File)</div>
-			<ul id="menuui" style="visibility: hidden;">
-				<li><a href="#">File</a>
-					<ul>
-						<li><a href="#" onclick="newDocument()">New</a></li>
-						<li><a href="#" onclick="openDocument()">Open...</a></li>
-						<li><a href="#" onclick="saveDocument()">Save</a></li>
-						<li><a href="#" onclick="saveDocumentAs()">Save As...</a></li>
-						<li><a href="#" onclick="removeDocument()">Delete...</a></li>
-					</ul></li>
-				<li><a href="#">Edit</a>
-					<ul>
-						<li><a href="#" onclick="myDiagram.commandHandler.undo()">Undo</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.redo()">Redo</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.cutSelection()">Cut</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.copySelection()">Copy</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.pasteSelection()">Paste</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.deleteSelection()">Delete</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.selectAll()">Select All</a></li>
-					</ul></li>
-				<li><a href="#">Align</a>
-					<ul>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignLeft()">Left Sides</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignRight()">Right Sides</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignTop()">Tops</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignBottom()">Bottoms</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignCenterX()">Center X</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignCenterY()">Center Y</a></li>
-					</ul></li>
-				<li><a href="#">Space</a>
-					<ul>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignRow(askSpace())">In Row...</a></li>
-						<li><a href="#" onclick="myDiagram.commandHandler.alignColumn(askSpace())">In Column...</a></li>
-					</ul></li>
-				<li><a href="#">Options</a>
-					<ul>
-						<li><a href="#"> <input id="grid" type="checkbox" name="options" value="grid" onclick="updateGridOption()" />Grid
-						</a></li>
-						<li><a href="#"> <input id="snap" type="checkbox" name="options" value="0" onclick="updateSnapOption()" />Snapping
-						</a></li>
-					</ul></li>
-			</ul>
+
 			<!--END menu bar -->
 
 
@@ -154,7 +114,7 @@
 					<button id="loadModel" onclick="loadModel()">Load</button>
 					<button id="saveModel" onclick="saveModel()">Save</button>
 				</div>
-				<textarea id="mySavedModel" style="width: 100%; height: 300px">
+				<textarea id="mySavedModel" style="width: 1%; height: 1%">
 				{ 
 	"class": "go.GraphLinksModel",  
 	"copiesArrays": true,  
@@ -406,5 +366,24 @@
 			</div>
 		</div>
 	</h:form>
+	<p:dialog id="testDialog" header="Test Dialog" widgetVar="test_dialog" modal="true" width="800px" height="580px" style="font-size:12px"
+		showEffect="slide" hideEffect="fold" resizable="true">
+		<h:form id="dialogForm">
+			<p:commandButton value="Show Results" update="logTable"/>
+			<p:dataTable id="logTable" var="log" value="#{outputBean.getLog()}">
+				<p:column headerText="Log Time">
+					<h:outputText value="#{log.logTime}" />
+				</p:column>
+
+				<p:column headerText="Command Text">
+					<h:outputText value="#{log.commandText}" />
+				</p:column>
+
+				<p:column headerText="Thread of Task">
+					<h:outputText value="#{log.thread}" />
+				</p:column>
+			</p:dataTable>
+		</h:form>
+	</p:dialog>
 </h:body>
 </html>

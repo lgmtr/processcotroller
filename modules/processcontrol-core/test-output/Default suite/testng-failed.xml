@@ -3,15 +3,11 @@
 <suite name="Failed suite [Default suite]">
   <test name="Default test(failed)">
     <classes>
-      <class name="processcontrol.core.interpreter.test.ProcessBeanTest">
+      <class name="processcontrol.core.akka.interpreter.test.MainAkkaTest">
         <methods>
-          <include name="springTestContextBeforeTestClass"/>
-          <include name="processBeanTestSimple"/>
-          <include name="springTestContextPrepareTestInstance"/>
-          <include name="springTestContextAfterTestClass"/>
-          <include name="springTestContextAfterTestMethod"/>
+          <include name="akkaTest"/>
         </methods>
-      </class> <!-- processcontrol.core.interpreter.test.ProcessBeanTest -->
+      </class> <!-- processcontrol.core.akka.interpreter.test.MainAkkaTest -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import processcontrol.core.json.model.BPMNModel;
@@ -25,17 +26,7 @@ public class ProcessBean {
 	private Map<Long, Map<String, Node>> parallelNodePairs;
 	
 	@Resource
-	private TaskInterpreter taskInterpreter;
-	
-	public ProcessBean(BPMNModel bpmnModel, Map<String, ProcessVariable> processVariables) {
-		dslModel = new DSLModel(bpmnModel);
-		this.processVariables = processVariables;
-		this.parallelNodePairs = dslModel.findParallelNodePairs();
-		generateSubProcesses(parallelNodePairs);
-	}
-	
-	public ProcessBean() {
-	}
+	private ApplicationContext applicationContext;
 	
 	public void setProcessBean(BPMNModel bpmnModel, Map<String, ProcessVariable> processVariables){
 		dslModel = new DSLModel(bpmnModel);
@@ -51,7 +42,7 @@ public class ProcessBean {
 				Map<String, Node> specificSubProcess = parallelNodePairs.get(key);
 				List<SubProcessBean> subProcessList = new ArrayList<SubProcessBean>();
 				for (Node node : dslModel.getNextNodes(specificSubProcess.get("start"), processVariables)) {
-					subProcessList.add(new SubProcessBean(key, dslModel, node, processVariables, parallelNodePairs, taskInterpreter));
+					subProcessList.add(new SubProcessBean(key, dslModel, node, processVariables, parallelNodePairs, applicationContext));
 				}
 				subProcesses.put(key, subProcessList);
 			}
@@ -66,18 +57,14 @@ public class ProcessBean {
 	
 	public void start(){
 		Node start = dslModel.getStart();
-		SubProcessBean mainProcess = new SubProcessBean(System.currentTimeMillis(), dslModel, start, processVariables, parallelNodePairs, taskInterpreter);
+		SubProcessBean mainProcess = new SubProcessBean(System.currentTimeMillis(), dslModel, start, processVariables, parallelNodePairs, applicationContext);
 		mainProcess.setSubProcesses(subProcesses);
 		Thread t = new Thread(mainProcess);
 		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
-
-//	@Override
-//	public void run() {
-//		Node start = dslModel.getStart();
-//		SubProcessBean mainProcess = new SubProcessBean(System.currentTimeMillis(), dslModel, start, processVariables, parallelNodePairs);
-//		mainProcess.setSubProcesses(subProcesses);
-//		Thread t = new Thread(mainProcess);
-//		t.start();
-//	}
 }

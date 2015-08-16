@@ -1,47 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results skipped="0" failed="0" total="1" passed="1">
+<testng-results skipped="0" failed="0" total="2" passed="2">
   <reporter-output>
   </reporter-output>
-  <suite name="Default suite" duration-ms="874" started-at="2015-08-12T15:18:56Z" finished-at="2015-08-12T15:18:57Z">
+  <suite name="Default suite" duration-ms="1511" started-at="2015-08-16T22:00:17Z" finished-at="2015-08-16T22:00:18Z">
     <groups>
     </groups>
-    <test name="Default test" duration-ms="874" started-at="2015-08-12T15:18:56Z" finished-at="2015-08-12T15:18:57Z">
+    <test name="Default test" duration-ms="1511" started-at="2015-08-16T22:00:17Z" finished-at="2015-08-16T22:00:18Z">
       <class name="processcontrol.core.interpreter.test.ProcessBeanTest">
-        <test-method status="PASS" signature="springTestContextBeforeTestClass()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2f9f7dcf]" name="springTestContextBeforeTestClass" is-config="true" duration-ms="15" started-at="2015-08-12T17:18:56Z" finished-at="2015-08-12T17:18:56Z">
+        <test-method status="PASS" signature="springTestContextBeforeTestClass()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="springTestContextBeforeTestClass" is-config="true" duration-ms="12" started-at="2015-08-17T00:00:17Z" finished-at="2015-08-17T00:00:17Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- springTestContextBeforeTestClass -->
-        <test-method status="PASS" signature="springTestContextPrepareTestInstance()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2f9f7dcf]" name="springTestContextPrepareTestInstance" is-config="true" duration-ms="569" started-at="2015-08-12T17:18:56Z" depends-on-methods="org.springframework.test.context.testng.AbstractTestNGSpringContextTests.springTestContextBeforeTestClass" finished-at="2015-08-12T17:18:56Z">
+        <test-method status="PASS" signature="springTestContextPrepareTestInstance()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="springTestContextPrepareTestInstance" is-config="true" duration-ms="1132" started-at="2015-08-17T00:00:17Z" depends-on-methods="org.springframework.test.context.testng.AbstractTestNGSpringContextTests.springTestContextBeforeTestClass" finished-at="2015-08-17T00:00:18Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- springTestContextPrepareTestInstance -->
-        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2f9f7dcf]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="2" started-at="2015-08-12T17:18:56Z" finished-at="2015-08-12T17:18:56Z">
+        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="2" started-at="2015-08-17T00:00:18Z" finished-at="2015-08-17T00:00:18Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[public void processcontrol.core.interpreter.test.ProcessBeanTest.processBeanStressTestComplex() throws com.fasterxml.jackson.core.JsonParseException,com.fasterxml.jackson.databind.JsonMappingException,java.io.IOException,java.lang.InterruptedException]]>
+                <![CDATA[public void processcontrol.core.interpreter.test.ProcessBeanTest.processBeanTestComplex() throws com.fasterxml.jackson.core.JsonParseException,com.fasterxml.jackson.databind.JsonMappingException,java.io.IOException]]>
               </value>
             </param>
           </params>
           <reporter-output>
           </reporter-output>
         </test-method> <!-- springTestContextBeforeTestMethod -->
-        <test-method status="PASS" signature="processBeanStressTestComplex()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2f9f7dcf]" name="processBeanStressTestComplex" duration-ms="266" started-at="2015-08-12T17:18:56Z" finished-at="2015-08-12T17:18:57Z">
+        <test-method status="PASS" signature="processBeanTestComplex()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="processBeanTestComplex" duration-ms="282" started-at="2015-08-17T00:00:18Z" finished-at="2015-08-17T00:00:18Z">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- processBeanStressTestComplex -->
-        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2f9f7dcf]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="0" started-at="2015-08-12T17:18:57Z" finished-at="2015-08-12T17:18:57Z">
+        </test-method> <!-- processBeanTestComplex -->
+        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="1" started-at="2015-08-17T00:00:18Z" finished-at="2015-08-17T00:00:18Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[public void processcontrol.core.interpreter.test.ProcessBeanTest.processBeanStressTestComplex() throws com.fasterxml.jackson.core.JsonParseException,com.fasterxml.jackson.databind.JsonMappingException,java.io.IOException,java.lang.InterruptedException]]>
+                <![CDATA[public void processcontrol.core.interpreter.test.ProcessBeanTest.processBeanTestComplex() throws com.fasterxml.jackson.core.JsonParseException,com.fasterxml.jackson.databind.JsonMappingException,java.io.IOException]]>
               </value>
             </param>
           </params>
           <reporter-output>
           </reporter-output>
         </test-method> <!-- springTestContextAfterTestMethod -->
-        <test-method status="PASS" signature="springTestContextAfterTestClass()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2f9f7dcf]" name="springTestContextAfterTestClass" is-config="true" duration-ms="1" started-at="2015-08-12T17:18:57Z" finished-at="2015-08-12T17:18:57Z">
+        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="0" started-at="2015-08-17T00:00:18Z" finished-at="2015-08-17T00:00:18Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void processcontrol.core.interpreter.test.ProcessBeanTest.processBeanTestSimple() throws com.fasterxml.jackson.core.JsonParseException,com.fasterxml.jackson.databind.JsonMappingException,java.io.IOException]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestMethod -->
+        <test-method status="PASS" signature="processBeanTestSimple()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="processBeanTestSimple" duration-ms="47" started-at="2015-08-17T00:00:18Z" finished-at="2015-08-17T00:00:18Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- processBeanTestSimple -->
+        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="0" started-at="2015-08-17T00:00:18Z" finished-at="2015-08-17T00:00:18Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void processcontrol.core.interpreter.test.ProcessBeanTest.processBeanTestSimple() throws com.fasterxml.jackson.core.JsonParseException,com.fasterxml.jackson.databind.JsonMappingException,java.io.IOException]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestMethod -->
+        <test-method status="PASS" signature="springTestContextAfterTestClass()[pri:0, instance:processcontrol.core.interpreter.test.ProcessBeanTest@2b9627bc]" name="springTestContextAfterTestClass" is-config="true" duration-ms="0" started-at="2015-08-17T00:00:18Z" finished-at="2015-08-17T00:00:18Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- springTestContextAfterTestClass -->
