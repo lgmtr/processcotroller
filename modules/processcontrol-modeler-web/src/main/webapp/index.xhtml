@@ -51,8 +51,8 @@
 				<p:menuitem value="In Column..." onclick="myDiagram.commandHandler.alignColumn(askSpace())" />
 			</p:submenu>
 			<p:submenu label="Test">
-				<p:menuitem value="Start Examplel Simple Lane" onclick="PF('test_dialog').show();" actionListener="#{modelerBean.simple()}" />
-				<p:menuitem value="Start Examplel Complex Lane" onclick="PF('test_dialog').show();" actionListener="#{modelerBean.complex()}" />
+				<p:menuitem value="Start Examplel Simple Lane" actionListener="#{modelerBean.simple()}" />
+				<p:menuitem value="Start Examplel Complex Lane" actionListener="#{modelerBean.complex()}" />
 			</p:submenu>
 		</p:menubar>
 
@@ -370,19 +370,7 @@
 		showEffect="slide" hideEffect="fold" resizable="true">
 		<h:form id="dialogForm">
 			<p:commandButton value="Show Results" update="logTable"/>
-			<p:dataTable id="logTable" var="log" value="#{outputBean.getLog()}">
-				<p:column headerText="Log Time">
-					<h:outputText value="#{log.logTime}" />
-				</p:column>
 
-				<p:column headerText="Command Text">
-					<h:outputText value="#{log.commandText}" />
-				</p:column>
-
-				<p:column headerText="Thread of Task">
-					<h:outputText value="#{log.thread}" />
-				</p:column>
-			</p:dataTable>
 		</h:form>
 	</p:dialog>
 </h:body>

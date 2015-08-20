@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import processcontrol.core.interpreter.ProcessVariable;
 import processcontrol.core.json.model.BPMNModel;
@@ -36,8 +37,8 @@ public class DSLModel {
 		return this.start;
 	}
 	
-	public Map<Long, Map<String, Node>> findParallelNodePairs(){
-		Map<Long, Map<String, Node>> parallelNodePairs = new HashMap<Long, Map<String, Node>>();
+	public Map<String, Map<String, Node>> findParallelNodePairs(){
+		Map<String, Map<String, Node>> parallelNodePairs = new HashMap<String, Map<String, Node>>();
 		for (Node node : nodeMap.values()) {
 			if(node.getType().equals(ActionType.PARALLEL_GATEWAY)){
 				String key = node.getGatewayName().split(":")[1];
@@ -157,7 +158,8 @@ public class DSLModel {
 	}
 	
 	private void addNodeToParallelGatewayList(Node node){
-		node.setParallelKey(System.currentTimeMillis());
+		UUID newID = UUID.randomUUID();
+		node.setParallelKey(newID.toString());
 		parallelGatewayList.add(node);
 	}
 

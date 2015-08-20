@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 import processcontrol.core.interpreter.ProcessBean;
 import processcontrol.core.interpreter.ProcessVariable;
 import processcontrol.core.json.model.BPMNModel;
-import processcontrol.core.logging.LoggingBean;
-import processcontrol.core.logging.LoggingBean.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,17 +23,9 @@ public class ModelerBean implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final String LINE_BREAK = "\\n\\r";
-	
 	@Resource
 	private ApplicationContext applicationContext;
 	
-	@Resource
-	private ProcessBean processBean;
-	
-	@Resource
-	private LoggingBean loggingBean;
-
 	private String prozessName;
 	
 	private String prozessInJson;
@@ -43,33 +33,27 @@ public class ModelerBean implements Serializable {
 	private BPMNModel bpmnModel;
 	
 	public void simple(){
+		save();
 		Map<String, ProcessVariable> processVariables = new HashMap<String, ProcessVariable>();
 		ProcessVariable processVariable = new ProcessVariable();
 		processVariable.setValue(new Boolean(false));
 		processVariable.setClassOfValue(Boolean.class);
 		processVariables.put("complex", processVariable);
-		processBean.setProcessBean(bpmnModel, processVariables);
+		ProcessBean processBean = new ProcessBean(bpmnModel, processVariables);
 		processBean.start();
 	}
 	
 	public void complex(){
+		save();
 		Map<String, ProcessVariable> processVariables = new HashMap<String, ProcessVariable>();
 		ProcessVariable processVariable = new ProcessVariable();
 		processVariable.setValue(new Boolean(true));
 		processVariable.setClassOfValue(Boolean.class);
 		processVariables.put("complex", processVariable);
-		processBean.setProcessBean(bpmnModel, processVariables);
+		ProcessBean processBean = new ProcessBean(bpmnModel, processVariables);
 		processBean.start();
 	}
 	
-	public String getLog(){
-		StringBuilder sb = new StringBuilder();
-		for (Log log : loggingBean.getLogList()) {
-			sb.append("Time: " + log.getLogTime() + " / Command: " + log.getCommandText() + " / Thread: " + log.getThread() + LINE_BREAK);
-		}
-		return sb.toString();
-	}
-
 	public void save(){		
 		ObjectMapper mapper = new ObjectMapper();
 		try {

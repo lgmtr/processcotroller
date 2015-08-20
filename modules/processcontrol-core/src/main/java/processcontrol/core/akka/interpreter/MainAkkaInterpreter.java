@@ -9,7 +9,8 @@ public class MainAkkaInterpreter extends UntypedActor {
 		if (msg == "DONE") {
 			getContext().stop(getSelf());
 		} else if(msg != null){
-			//System.out.println(msg);
+			
+			System.out.println(msg);
 		} else
 			unhandled(msg);
 	}

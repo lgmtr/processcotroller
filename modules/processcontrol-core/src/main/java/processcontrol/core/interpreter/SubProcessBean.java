@@ -4,95 +4,131 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.springframework.context.ApplicationContext;
 
 import processcontrol.core.model.ActionType;
 import processcontrol.core.model.DSLModel;
 import processcontrol.core.model.Node;
+import akka.actor.ActorRef;
 
-public class SubProcessBean implements Runnable {
+public class SubProcessBean extends Thread {
 
-	private ApplicationContext applicationContext;
-	
-	private long processKey;
+	private String processKey;
 
 	private Node start;
 
-	private Map<Long, List<SubProcessBean>> subProcesses;
+	private Node end;
+
+	private Map<String, List<SubProcessBean>> subProcesses;
 
 	private DSLModel dslModel;
 
 	private Map<String, ProcessVariable> processVariables;
-	
-	private Map<Long, Map<String, Node>> parallelNodePairs;
 
-	public SubProcessBean(long processKey, DSLModel dslModel, Node start, Map<String, ProcessVariable> processVariables, Map<Long, Map<String, Node>> parallelNodePairs, ApplicationContext applicationContext) {
+	private Map<String, Map<String, Node>> parallelNodePairs;
+
+	private ActorRef commandPrinter;
+
+	public SubProcessBean(String processKey, DSLModel dslModel, Node start, Node end, Map<String, ProcessVariable> processVariables,
+			Map<String, Map<String, Node>> parallelNodePairs, ActorRef commandPrinter) {
 		this.processKey = processKey;
 		this.processVariables = processVariables;
 		this.dslModel = dslModel;
 		this.start = start;
 		this.subProcesses = null;
 		this.parallelNodePairs = parallelNodePairs;
-		this.applicationContext = applicationContext;
+		this.commandPrinter = commandPrinter;
+		this.end = end;
 	}
 
-	public void setSubProcesses(Map<Long, List<SubProcessBean>> subProcesses){
+	public void setSubProcesses(Map<String, List<SubProcessBean>> subProcesses) {
 		this.subProcesses = subProcesses;
 	}
 
 	@Override
 	public void run() {
-		tryTaskCommand(start);
-		handleNode(dslModel.getNextNodes(start, processVariables));
+		NodeRunner previousNodeRunner = new NodeRunner(start);
+		previousNodeRunner.start();
+		Node previousNode = start;
+		Node actualNode = null;
+		do {
+			NodeRunner actualNodeRunner;
+			List<Node> nodeList = dslModel.getNextNodes(previousNode, processVariables);
+			if (nodeList.size() == 1) {
+				actualNode = nodeList.get(0);
+				if (ActionType.PARALLEL_GATEWAY.equals(actualNode.getType())) {
+					if (actualNode.getParallelKey() != processKey) {
+						List<SubProcessBean> subProcessList = subProcesses.get(actualNode.getParallelKey());
+						List<Node> newNodeList = dslModel.getNextNodes(parallelNodePairs.get(actualNode.getParallelKey()).get("end"), processVariables);
+						actualNode = newNodeList.get(0);
+						actualNodeRunner = new NodeRunner(actualNode);
+						actualNodeRunner.start(subProcessList);
+						previousNode = actualNode;
+						previousNodeRunner = actualNodeRunner;
+					}
+				} else {
+					actualNodeRunner = new NodeRunner(actualNode);
+					actualNodeRunner.start(previousNodeRunner);
+					previousNode = actualNode;
+					previousNodeRunner = actualNodeRunner;
+				}
+			} else {
+				// TODO List Validation
+				System.err.println("Something went wrong!");
+			}
+		} while (!actualNode.getType().equals(end.getType()));
+		this.interrupt();
 	}
 
 	private void tryTaskCommand(Node node) {
 		if (ActionType.TASK.equals(node.getType())) {
-			TaskInterpreter taskInterpreter = applicationContext.getBean(TaskInterpreter.class);
-			taskInterpreter.taskCommand(node.getCommand(), DateTime.now().toString("hh:mm:ss:SSS"));
+			commandPrinter.tell(commandFormatter(node.getCommand(), DateTime.now().toString("hh:mm:ss:SSS"), Thread.currentThread().getName()), null);
 		}
 	}
 
-	private void handleNode(List<Node> nodeList) {
-		for (Node node : nodeList) {
-			tryTaskCommand(node);
-			if (ActionType.PARALLEL_GATEWAY.equals(node.getType())) {
-				if (node.getParallelKey() != processKey) {
-					List<SubProcessBean> subProcessList = subProcesses.get(node.getParallelKey());
-					Thread[] threads = new Thread[subProcessList.size()];
-					for (int i = 0; i < threads.length; i++) {
-						threads[i] = new Thread(subProcessList.get(i));
-						threads[i].start();
-					}
-					for (int i = 0; i < threads.length; i++) {
-						try {
-							threads[i].join();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					List<Node> newNodeList = dslModel.getNextNodes(parallelNodePairs.get(node.getParallelKey()).get("end"),
-							processVariables);
-					if (newNodeList != null){
-						handleNode(newNodeList);
-					}
-				}
-			} else if(ActionType.END.equals(node.getType())){
-				TaskInterpreter taskInterpreter = applicationContext.getBean(TaskInterpreter.class);
-				taskInterpreter.taskCommand("DONE", DateTime.now().toString("hh:mm:ss:SSS"));
-			} else {
-				List<Node> newNodeList = dslModel.getNextNodes(node, processVariables);
-				if (newNodeList != null)
-					handleNode(newNodeList);
+	private String commandFormatter(String command, String time, String thread) {
+		return "Time: " + time + " / Command: " + command + " / Thread: " + thread;
+	}
+
+	private class NodeRunner extends Thread {
+
+		private Node node;
+
+		public NodeRunner(Node node) {
+			this.node = node;
+		}
+
+		public void start(NodeRunner nodeRunner) {
+			try {
+				nodeRunner.join();
+			} catch (InterruptedException e) {
 			}
+			this.start();
+		}
+
+		public void start(List<SubProcessBean> subProcessList) {
+			for (SubProcessBean subProcessBean : subProcessList) {
+				subProcessBean.start();
+			}
+			try {
+				for (SubProcessBean subProcessBean : subProcessList) {
+					subProcessBean.join();
+				}
+			} catch (InterruptedException e) {
+			}
+			this.start();
+		}
+
+		@Override
+		public void run() {
+			tryTaskCommand(node);
 		}
 	}
 
-	public long getProcessKey() {
+	public String getProcessKey() {
 		return processKey;
 	}
 
-	public void setProcessKey(long processKey) {
+	public void setProcessKey(String processKey) {
 		this.processKey = processKey;
 	}
 
