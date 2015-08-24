@@ -1,5 +1,7 @@
 package processcontrol.core.interpreter;
 
+import java.io.Serializable;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -14,8 +16,10 @@ import akka.actor.Props;
 import com.typesafe.config.ConfigFactory;
 
 @Service
-public class TaskInterpreter {
+public class TaskInterpreter implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	@Resource
 	private LoggingBean loggingBean;
 	

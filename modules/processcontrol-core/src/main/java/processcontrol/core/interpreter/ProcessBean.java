@@ -1,5 +1,6 @@
 package processcontrol.core.interpreter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +16,9 @@ import processcontrol.core.model.DSLModel;
 import processcontrol.core.model.Node;
 
 @Service
-public class ProcessBean {
+public class ProcessBean implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	private DSLModel dslModel;
 
