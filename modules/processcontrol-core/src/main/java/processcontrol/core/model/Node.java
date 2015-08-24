@@ -1,8 +1,10 @@
 package processcontrol.core.model;
 
+import java.util.List;
+
 public class Node {
 	
-	private int key;
+	private Integer key;
 	
 	private String item;
 	
@@ -14,13 +16,15 @@ public class Node {
 	
 	private String gatewayName;
 	
-	private long parallelKey = 0;
+	private List<Condition> gatewayCondition = null;
+	
+	private String parallelKey = "";
 
-	public int getKey() {
+	public Integer getKey() {
 		return key;
 	}
 
-	public void setKey(int key) {
+	public void setKey(Integer key) {
 		this.key = key;
 	}
 
@@ -56,11 +60,11 @@ public class Node {
 		this.command = command;
 	}
 
-	public long getParallelKey() {
+	public String getParallelKey() {
 		return parallelKey;
 	}
 
-	public void setParallelKey(long parallelKey) {
+	public void setParallelKey(String parallelKey) {
 		this.parallelKey = parallelKey;
 	}
 
@@ -70,6 +74,14 @@ public class Node {
 
 	public void setGatewayName(String gatewayName) {
 		this.gatewayName = gatewayName;
+	}
+
+	public List<Condition> getGatewayCondition() {
+		return gatewayCondition;
+	}
+
+	public void setGatewayCondition(List<Condition> gatewayCondition) {
+		this.gatewayCondition = gatewayCondition;
 	}
 
 }
