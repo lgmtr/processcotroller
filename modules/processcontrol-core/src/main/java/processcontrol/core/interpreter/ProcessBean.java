@@ -1,5 +1,6 @@
 package processcontrol.core.interpreter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,9 @@ import akka.actor.Props;
 
 import com.typesafe.config.ConfigFactory;
 
-public class ProcessBean {
+public class ProcessBean implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	private DSLModel dslModel;
 

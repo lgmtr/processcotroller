@@ -61,7 +61,7 @@ public class SubProcessBean extends Thread {
 						List<Node> newNodeList = dslModel.getNextNodes(parallelNodePairs.get(actualNode.getParallelKey()).get("end"), processVariables);
 						actualNode = newNodeList.get(0);
 						actualNodeRunner = new NodeRunner(actualNode);
-						actualNodeRunner.start(subProcessList);
+						actualNodeRunner.start(subProcessList, previousNodeRunner);
 						previousNode = actualNode;
 						previousNodeRunner = actualNodeRunner;
 					}
@@ -105,7 +105,11 @@ public class SubProcessBean extends Thread {
 			this.start();
 		}
 
-		public void start(List<SubProcessBean> subProcessList) {
+		public void start(List<SubProcessBean> subProcessList, NodeRunner nodeRunner) {
+			try {
+				nodeRunner.join();
+			} catch (InterruptedException e) {
+			}
 			for (SubProcessBean subProcessBean : subProcessList) {
 				subProcessBean.start();
 			}
