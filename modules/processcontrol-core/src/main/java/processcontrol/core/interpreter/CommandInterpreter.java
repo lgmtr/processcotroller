@@ -4,7 +4,9 @@ import org.apache.commons.lang.StringUtils;
 
 public class CommandInterpreter {
 
-	public static String parseCommand(String command) {
+	private final static int TIMEOUT = 5000;
+	
+	public static String parseCommand(String command, Thread thread) {
 		String[] commandArray = command.split(":");
 		String returnValue = "";
 		switch (commandArray[0].toUpperCase()) {
@@ -31,13 +33,34 @@ public class CommandInterpreter {
 			}
 			break;
 		case "GET":
-			returnValue = "No Such Command found!";
+			switch (commandArray[1].toUpperCase()) {
+			case "WINDOW":
+				returnValue = getWindowCommand(commandArray, thread);
+				break;
+			default:
+				returnValue = "No Such Command found!";
+				break;
+			}
 			break;
 		default:
 			returnValue = "No Such Command found!";
 			break;
 		}
 		return returnValue;
+	}
+
+	@SuppressWarnings("static-access")
+	private static String getWindowCommand(String[] commandArray, Thread thread) {
+		int timeOut = 0;
+		do {
+			timeOut+=50;
+			try {
+				thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} while (timeOut < TIMEOUT);
+		return "Get Value Command";
 	}
 
 	private static String lightCommand(String[] command) {

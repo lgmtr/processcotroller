@@ -124,6 +124,7 @@ public class SubProcessBean extends Thread {
 
 		@Override
 		public void run() {
+			
 			tryTaskCommand(node);
 		}
 	}
