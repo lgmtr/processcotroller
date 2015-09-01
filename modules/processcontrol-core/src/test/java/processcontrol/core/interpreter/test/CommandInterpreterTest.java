@@ -1,39 +1,34 @@
 package processcontrol.core.interpreter.test;
 
-import junit.framework.Assert;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import processcontrol.core.interpreter.CommandInterpreter;
+import processcontrol.core.interpreter.ProcessVariable;
 
 public class CommandInterpreterTest {
 
-	private final String[] expectedValue = { "ControlWindow(2, 20, FAST);", "ControlWindowGroup(ALL, 20, FAST);", "ControlHeater(1, 5);",
-			"ControlCurtain(2, OPEN);", "ControlShutter(DINING_KITCHEN, HALF);", "ControlLight(2, 100);", "ControlLightRGBGroup(DINING_KITCHEN, BLUE, 50);",
-			"Get Value Command" };
-
 	private final String[] commands = { "SET:WINDOW:2:20:FAST", "SET:WINDOW:ALL:20:FAST", "SET:HEATER:1:5", "SET:CURTAIN:2:OPEN",
-			"SET:SHUTTER:DINING_KITCHEN:HALF", "SET:LIGHT:2:100", "SET:LIGHT:DINING_KITCHEN:BLUE:50", "GET:WINDOW:STATE" };
+			"SET:SHUTTER:DINING_KITCHEN:HALF", "SET:LIGHT:2:100", "SET:LIGHT:DINING_KITCHEN:BLUE:50", "GET:WINDOW:STATUS" };
+	
+	private Map<String, ProcessVariable> processVariables = new HashMap<String, ProcessVariable>();
 
 	@Test
 	public void commandInterpreterTest() {
-		Assert.assertEquals(expectedValue.length, commands.length);
-		for (int i = 0; i < expectedValue.length; i++) {
+		for (int i = 0; i < commands.length; i++) {
 			CommandRunner cr = new CommandRunner(commands[i]);
-			cr.setThread(cr);
 			cr.start();
 			try {
 				cr.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println(cr.getReturnValue());
-			Assert.assertEquals(expectedValue[i], cr.getReturnValue());
 		}
 	}
 
 	public class CommandRunner extends Thread {
-		private Thread thread;
 
 		private String returnValue;
 
@@ -45,7 +40,7 @@ public class CommandInterpreterTest {
 
 		@Override
 		public void run() {
-			this.setReturnValue(CommandInterpreter.parseCommand(command, thread));
+			this.setReturnValue(CommandInterpreter.parseCommand(command, processVariables));
 		}
 
 		public String getReturnValue() {
@@ -56,9 +51,6 @@ public class CommandInterpreterTest {
 			this.returnValue = returnValue;
 		}
 		
-		public void setThread(Thread thread){
-			this.thread = thread;
-		}
 	}
 
 }

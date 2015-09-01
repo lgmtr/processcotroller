@@ -1,31 +1,38 @@
 package processcontrol.core.interpreter;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
+
+import processcontrol.core.akka.interpreter.ActorSystemContainer;
+import processcontrol.core.akka.interpreter.PublishContainer;
+import processcontrol.core.akka.interpreter.Subscriber;
+import akka.actor.Props;
 
 public class CommandInterpreter {
 
 	private final static int TIMEOUT = 5000;
-	
-	public static String parseCommand(String command, Thread thread) {
+
+	public static String parseCommand(String command, Map<String, ProcessVariable> processVariables) {
 		String[] commandArray = command.split(":");
 		String returnValue = "";
 		switch (commandArray[0].toUpperCase()) {
 		case "SET":
 			switch (commandArray[1].toUpperCase()) {
 			case "WINDOW":
-				returnValue = windowCommand(commandArray);
+				windowCommand(commandArray);
 				break;
 			case "HEATER":
-				returnValue = heaterCommand(commandArray);
+				heaterCommand(commandArray);
 				break;
 			case "SHUTTER":
-				returnValue = shutterCommand(commandArray);
+				shutterCommand(commandArray);
 				break;
 			case "CURTAIN":
-				returnValue = curtainCommand(commandArray);
+				curtainCommand(commandArray);
 				break;
 			case "LIGHT":
-				returnValue = lightCommand(commandArray);
+				lightCommand(commandArray);
 				break;
 			default:
 				returnValue = "No Such Command found!";
@@ -35,7 +42,7 @@ public class CommandInterpreter {
 		case "GET":
 			switch (commandArray[1].toUpperCase()) {
 			case "WINDOW":
-				returnValue = getWindowCommand(commandArray, thread);
+				returnValue = getWindowCommand(commandArray, processVariables);
 				break;
 			default:
 				returnValue = "No Such Command found!";
@@ -49,46 +56,56 @@ public class CommandInterpreter {
 		return returnValue;
 	}
 
-	@SuppressWarnings("static-access")
-	private static String getWindowCommand(String[] commandArray, Thread thread) {
-		int timeOut = 0;
-		do {
-			timeOut+=50;
+	private static String getWindowCommand(String[] commandArray, Map<String, ProcessVariable> processVariables) {
+		ActorSystemContainer.getInstance().getSystem().actorOf(Props.create(Subscriber.class, commandArray[1].toUpperCase(), processVariables), commandArray[1].toUpperCase() + "_Subscriber");
+		int timeOutCounter = 0;
+		do{
+			PublishContainer.getInstance().getPublisher(commandArray[1].toUpperCase()).tell(commandArray[0] + ":" + commandArray[1] + ":" +commandArray[2], null);
 			try {
-				thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Thread.sleep(50);
+			} catch (InterruptedException e) {}
+			if(processVariables.containsKey(commandArray[1].toUpperCase())){
+				return (String) processVariables.get(commandArray[1].toUpperCase()).getValue();
 			}
-		} while (timeOut < TIMEOUT);
-		return "Get Value Command";
+			timeOutCounter+=50;
+		}while(timeOutCounter < TIMEOUT);
+		return "";
 	}
 
-	private static String lightCommand(String[] command) {
+	private static void lightCommand(String[] command) {
 		String[] dummy = idOrGroupCheck(command[2]);
 		String[] dummy2 = idOrGroupCheck(command[3]);
-		if ("Group".equals(dummy2[0]))
-			return "ControlLightRGB" + dummy[0] + "(" + dummy[1] + ", " + dummy2[1] + ", " + command[4] + ");";
-		return "ControlLight" + dummy[0] + "(" + dummy[1] + ", " + dummy2[1] + ");";
+		String returnString = "";
+		if ("Group".equals(dummy2[0])){
+			returnString =  "ControlLightRGB" + dummy[0] + "(" + dummy[1] + ", " + dummy2[1] + ", " + command[4] + ");";
+		}else{
+			returnString =  "ControlLight" + dummy[0] + "(" + dummy[1] + ", " + dummy2[1] + ");";
+		}
+		PublishContainer.getInstance().getPublisher(command[1].toUpperCase()).tell(returnString, null);
 	}
 
-	private static String curtainCommand(String[] command) {
+	private static void curtainCommand(String[] command) {
 		String[] dummy = idOrGroupCheck(command[2]);
-		return "ControlCurtain(" + dummy[1] + ", " + command[3].toUpperCase() + ");";
+		final String returnString =  "ControlCurtain(" + dummy[1] + ", " + command[3].toUpperCase() + ");";
+		PublishContainer.getInstance().getPublisher(command[1].toUpperCase()).tell(returnString, null);
 	}
 
-	private static String shutterCommand(String[] command) {
+	private static void shutterCommand(String[] command) {
 		String[] dummy = idOrGroupCheck(command[2]);
-		return "ControlShutter(" + dummy[1] + ", " + command[3].toUpperCase() + ");";
+		final String returnString =  "ControlShutter(" + dummy[1] + ", " + command[3].toUpperCase() + ");";
+		PublishContainer.getInstance().getPublisher(command[1].toUpperCase()).tell(returnString, null);
 	}
 
-	private static String heaterCommand(String[] command) {
+	private static void heaterCommand(String[] command) {
 		String[] dummy = idOrGroupCheck(command[2]);
-		return "ControlHeater" + dummy[0] + "(" + dummy[1] + ", " + command[3] + ");";
+		final String returnString =  "ControlHeater" + dummy[0] + "(" + dummy[1] + ", " + command[3] + ");";
+		PublishContainer.getInstance().getPublisher(command[1].toUpperCase()).tell(returnString, null);
 	}
 
-	private static String windowCommand(String[] command) {
+	private static void windowCommand(String[] command) {
 		String[] dummy = idOrGroupCheck(command[2]);
-		return "ControlWindow" + dummy[0] + "(" + dummy[1] + ", " + command[3] + ", " + command[4].toUpperCase() + ");";
+		final String returnString = "ControlWindow" + dummy[0] + "(" + dummy[1] + ", " + command[3] + ", " + command[4].toUpperCase() + ");";
+		PublishContainer.getInstance().getPublisher(command[1].toUpperCase()).tell(returnString, null);
 	}
 
 	private static String[] idOrGroupCheck(String idOrGroup) {
