@@ -20,7 +20,7 @@
 	</repositories>
 	
 	<properties>
-		<spring.version>4.2.0.RELEASE</spring.version>
+		<spring.version>4.2.1.RELEASE</spring.version>
 		<org.primefaces>5.2</org.primefaces>
 		<com.sun.faces>2.2.12</com.sun.faces>
 		<javax.servlet>1.2</javax.servlet>

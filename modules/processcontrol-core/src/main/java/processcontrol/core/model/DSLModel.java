@@ -124,8 +124,12 @@ public class DSLModel {
 				node.setGatewayName(nodeDataArray.getText());
 				connectParallelGateways(node);
 			}
-			if (node.getType().equals(ActionType.TASK))
+			if (node.getType().equals(ActionType.TASK)){
 				node.setCommand(nodeDataArray.getText());
+				node.setProp1(nodeDataArray.getProp1());
+				node.setProp2(nodeDataArray.getProp2());
+				node.setProp3(nodeDataArray.getProp3());
+			}
 			if (node.getType().equals(ActionType.START))
 				start = node;
 			if (node.getType().equals(ActionType.END))

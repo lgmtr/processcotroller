@@ -317,44 +317,26 @@ function init() {
 	// ------------------------------------------ Activity Node contextMenu
 	// ----------------------------------------------
 
-	var activityNodeMenu = $(go.Adornment, "Vertical", $("ContextMenuButton",
-			$(go.TextBlock, "Add Email Event", {
-				margin : 3
-			}), {
-				click : function(e, obj) {
-					addActivityNodeBoundaryEvent(2, 5);
-				}
-			}), $("ContextMenuButton", $(go.TextBlock, "Add Timer Event", {
+	var activityNodeMenu = $(go.Adornment, "Vertical", 
+		$("ContextMenuButton", $(go.TextBlock, "Set Property 1", {
 		margin : 3
 	}), {
 		click : function(e, obj) {
-			addActivityNodeBoundaryEvent(3, 5);
+			setProp1(obj);
 		}
-	}), $("ContextMenuButton", $(go.TextBlock, "Add Escalation Event", {
+	}), $("ContextMenuButton", $(go.TextBlock, "Set Property 2", {
 		margin : 3
 	}), {
 		click : function(e, obj) {
-			addActivityNodeBoundaryEvent(4, 5);
+			setProp2(obj);
 		}
-	}), $("ContextMenuButton", $(go.TextBlock, "Add Error Event", {
+	}), $("ContextMenuButton", $(go.TextBlock, "Set Property 3", {
 		margin : 3
 	}), {
 		click : function(e, obj) {
-			addActivityNodeBoundaryEvent(7, 5);
+			setProp3(obj);
 		}
-	}), $("ContextMenuButton", $(go.TextBlock, "Add Signal Event", {
-		margin : 3
-	}), {
-		click : function(e, obj) {
-			addActivityNodeBoundaryEvent(10, 5);
-		}
-	}), $("ContextMenuButton", $(go.TextBlock, "Add N-I Escalation Event", {
-		margin : 3
-	}), {
-		click : function(e, obj) {
-			addActivityNodeBoundaryEvent(4, 6);
-		}
-	}), $("ContextMenuButton", $(go.TextBlock, "Rename", {
+	}), $("ContextMenuButton", $(go.TextBlock, "Set Command", {
 		margin : 3
 	}), {
 		click : function(e, obj) {
@@ -1796,12 +1778,33 @@ function init() {
 			eventDimension : 1,
 			item : "start"
 		}, {
+			key : 103,
+			category : "event",
+			text : "Timer",
+			eventType : 3,
+			eventDimension : 3,
+			item : "Timer"
+		}, {
 			key : 104,
 			category : "event",
 			text : "End",
 			eventType : 1,
 			eventDimension : 8,
 			item : "End"
+		}, {
+			key : 401,
+			category : "event",
+			eventType : 5,
+			eventDimension : 1,
+			text : "Conditional\nStart",
+			item : "BpmnEventConditional"
+		}, {
+			key : 402,
+			category : "event",
+			eventType : 10,
+			eventDimension : 1,
+			text : "Signal\nStart",
+			item : "BpmnEventSignal"
 		},
 		// -------------------------- Task/Activity Nodes
 		{
@@ -1809,7 +1812,22 @@ function init() {
 			category : "activity",
 			text : "Task",
 			item : "generic task",
-			taskType : 0
+			taskType : 0,
+			property_1 : "",
+			property_2 : "",
+			property_3 : ""
+		}, {
+			key : 101,
+			text : "Adhoc\nSubprocess",
+			isGroup : true,
+			isSubProcess : true,
+			category : "subprocess",
+			isAdHoc : true,
+			taskType : 0,
+			property_1 : "",
+			property_2 : "",
+			property_3 : "",
+			loc : "0 0"
 		},
 		// -------------------------- Gateway Nodes, Data, Pool and Annotation
 		{
@@ -2005,6 +2023,27 @@ function rename(obj) {
 	var newName = prompt("Rename " + obj.part.data.item + " to:");
 	myDiagram.model.setDataProperty(obj.part.data, "item", newName);
 	myDiagram.commitTransaction("rename");
+}
+
+function setProp1(obj) {
+	myDiagram.startTransaction("setProp1");
+	var newName = prompt("Set Property 1 " + obj.part.data.item + " to:");
+	myDiagram.model.setDataProperty(obj.part.data, "property_1", newName);
+	myDiagram.commitTransaction("setProp1");
+}
+
+function setProp2(obj) {
+	myDiagram.startTransaction("setProp2");
+	var newName = prompt("Set Property 2 " + obj.part.data.item + " to:");
+	myDiagram.model.setDataProperty(obj.part.data, "property_2", newName);
+	myDiagram.commitTransaction("setProp2");
+}
+
+function setProp3(obj) {
+	myDiagram.startTransaction("setProp3");
+	var newName = prompt("Set Property 3 " + obj.part.data.item + " to:");
+	myDiagram.model.setDataProperty(obj.part.data, "property_3", newName);
+	myDiagram.commitTransaction("setProp3");
 }
 
 // shows/hides gridlines
