@@ -1,12 +1,19 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:jsf="http://xmlns.jcp.org/jsf">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
 <h:head>
 	<title>BPMN Editor</title>
 	<!-- Copyright 1998-2015 by Northwoods Software Corporation. -->
 	<script src="scripts/go.js"></script>
-	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+	<link rel="stylesheet"
+		href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+	<script
+		src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script
+		src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
 	<script src="scripts/DrawCommandHandler.js"></script>
 	<link href="css/BPMN.css" rel="stylesheet" type="text/css" />
 	<script src="scripts/BPMNClasses.js"></script>
@@ -23,53 +30,62 @@
 </h:head>
 <h:body onload="init()">
 	<h:form id="myForm">
-		<p:menubar style="width: 100%">
-			<p:submenu label="File" icon="">
-				<p:menuitem value="New" onclick="newDocument()" />
-				<p:menuitem value="Open" />
-				<p:menuitem value="Save" onclick="saveDocumentAs()" actionListener="#{modelerBean.save()}" />
-			</p:submenu>
-			<p:submenu label="Edit">
-				<p:menuitem value="Undo" onclick="myDiagram.commandHandler.undo()" />
-				<p:menuitem value="Redo" onclick="myDiagram.commandHandler.redo()" />
-				<p:menuitem value="Cut" onclick="myDiagram.commandHandler.cutSelection()" />
-				<p:menuitem value="Copy" onclick="myDiagram.commandHandler.copySelection()" />
-				<p:menuitem value="Paste" onclick="myDiagram.commandHandler.pasteSelection()" />
-				<p:menuitem value="Delete" onclick="myDiagram.commandHandler.deleteSelection()" />
-				<p:menuitem value="Select All" onclick="myDiagram.commandHandler.selectAll()" />
-			</p:submenu>
-			<p:submenu label="Align">
-				<p:menuitem value="Left Sides" onclick="myDiagram.commandHandler.alignLeft()" />
-				<p:menuitem value="Right Sides" onclick="myDiagram.commandHandler.alignRight()" />
-				<p:menuitem value="Tops" onclick="myDiagram.commandHandler.alignTop()" />
-				<p:menuitem value="Bottoms" onclick="myDiagram.commandHandler.alignBottom()" />
-				<p:menuitem value="Center X" onclick="myDiagram.commandHandler.alignCenterX()" />
-				<p:menuitem value="Center Y" onclick="myDiagram.commandHandler.alignCenterY()" />
-			</p:submenu>
-			<p:submenu label="Space">
-				<p:menuitem value="In Row..." onclick="myDiagram.commandHandler.alignRow(askSpace())" />
-				<p:menuitem value="In Column..." onclick="myDiagram.commandHandler.alignColumn(askSpace())" />
-			</p:submenu>
-			<p:submenu label="Test">
-				<p:menuitem value="Start Examplel Simple Lane" actionListener="#{modelerBean.simple()}" />
-				<p:menuitem value="Start Examplel Complex Lane" actionListener="#{modelerBean.complex()}" />
-			</p:submenu>
-		</p:menubar>
-
+		<ul id="menuui">
+        <li><a href="#">File</a>
+          <ul>
+            <li><h:commandLink styleClass="a" onclick="newDocument()">New</h:commandLink></li>
+            <li><a href="#" onclick="openDocument()">Open...</a></li>
+            <li><h:commandLink styleClass="a" onclick="saveDocumentAs()" action="#{modelerBean.save()}">Save</h:commandLink></li>
+          </ul>
+        </li>
+        <li><a href="#">Edit</a>
+          <ul>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.undo()">Undo</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.redo()">Redo</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.cutSelection()">Cut</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.copySelection()">Copy</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.pasteSelection()">Paste</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.deleteSelection()">Delete</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.selectAll()">Select All</h:commandLink></li>
+          </ul>
+        </li>
+        <li><a href="#">Align</a>
+          <ul>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignLeft()">Left Sides</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignRight()">Right Sides</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignTop()">Tops</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignBottom()">Bottoms</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignCenterX()">Center X</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignCenterY()">Center Y</h:commandLink></li>
+          </ul>
+        </li>
+        <li><a href="#">Space</a>
+          <ul>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignRow(askSpace())">In Row...</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="myDiagram.commandHandler.alignColumn(askSpace())">In Column...</h:commandLink></li>
+          </ul>
+        </li>
+        <li><a href="#">Test</a>
+          <ul>
+            <li><h:commandLink styleClass="a" onclick="saveDocumentAs()" action="#{modelerBean.simple()}" >Start Examplel Simple Lane</h:commandLink></li>
+            <li><h:commandLink styleClass="a" onclick="saveDocumentAs()" action="#{modelerBean.complex()}">Start Examplel Complex Lane</h:commandLink></li>
+          </ul>
+        </li>
+      </ul>
+		
 		<div>
 			<div id="currentFile">(Unsaved File)</div>
 
 			<!--END menu bar -->
 
-
-
 			<!-- Styling for this portion is in BPMN.css -->
 			<div id="PaletteAndDiagram">
 				<div id="sideBar">
 
-					<span style="display: inline-block; vertical-align: top; padding: 5px; width: 100%">
+					<span
+						style="display: inline-block; vertical-align: top; padding: 5px; width: 100%">
 						<div id="accordion">
-							<h4>Main </h4>
+							<h4>Main</h4>
 							<div>
 								<div id="myPaletteLevel1" class="myPalette"></div>
 							</div>
@@ -89,26 +105,31 @@
 				</div>
 				<div id="myDiagram" style="height: 80%"></div>
 
-			</div>
-
 			<div id="openDocument" class="draggable">
 				<div id="openDraggableHandle" class="handle">Open File</div>
 				<div id="openText" class="elementText">Choose file to open...</div>
 				<select id="mySavedFiles" class="mySavedFiles"></select> <br />
-				<button id="openBtn" class="elementBtn" type="button" onclick="loadFile()" style="margin-left: 70px">Open</button>
-				<button id="cancelBtn" class="elementBtn" type="button" onclick="closeElement('openDocument')">Cancel</button>
+				<button id="openBtn" class="elementBtn" type="button"
+					onclick="loadFile()" style="margin-left: 70px">Open</button>
+				<button id="cancelBtn" class="elementBtn" type="button"
+					onclick="closeElement('openDocument')">Cancel</button>
 			</div>
 
 			<div id="removeDocument" class="draggable">
 				<div id="removeDraggableHandle" class="handle">Delete File</div>
-				<div id="removeText" class="elementText">Choose file to remove...</div>
+				<div id="removeText" class="elementText">Choose file to
+					remove...</div>
 				<select id="mySavedFiles2" class="mySavedFiles"></select> <br />
-				<button id="removeBtn" class="elementBtn" type="button" onclick="removeFile()" style="margin-left: 70px">Remove</button>
-				<button id="cancelBtn2" class="elementBtn" type="button" onclick="closeElement('removeDocument')">Cancel</button>
+				<button id="removeBtn" class="elementBtn" type="button"
+					onclick="removeFile()" style="margin-left: 70px">Remove</button>
+				<button id="cancelBtn2" class="elementBtn" type="button"
+					onclick="closeElement('removeDocument')">Cancel</button>
+			</div>
+			
 			</div>
 
 			<!-- A simple preset model and JSON save/load buttons are hidden on the page -->
-			<div style="visibility: hidden;">
+			<div>
 				<div class="handle">JSON:</div>
 				<div id="buttons">
 					<button id="loadModel" onclick="loadModel()">Load</button>
@@ -352,24 +373,24 @@
 	]
 }
 			</textarea>
-
+				<!--
 				//colors for lanes: lightyellow, lightblue, lavender, lightgray, mistyrose
 
-				<!--  embedded pool data
+				  embedded pool data
         { "key": "Pool2a", "text": "Pool2a", "isGroup": "true", "category": "Pool", "group": "Pool2" },
             { "key": "Lane5a", "text": "Lane5a", "isGroup": "true", "group": "Pool2a", "color": "pink", "category": "Lane" },
             { "key": "Lane6a", "text": "Lane6a", "isGroup": "true", "group": "Pool2a", "color": "gray", "category": "Lane" },         
 -->
 				<p:inputText id="procesName" value="#{modelerBean.prozessName}" />
 				<p:inputText id="procesInJson" value="#{modelerBean.prozessInJson}" />
-				<p:commandButton actionListener="#{modelerBean.doCommand()}" />
 			</div>
 		</div>
 	</h:form>
-	<p:dialog id="testDialog" header="Test Dialog" widgetVar="test_dialog" modal="true" width="800px" height="580px" style="font-size:12px"
+	<p:dialog id="testDialog" header="Test Dialog" widgetVar="test_dialog"
+		modal="true" width="800px" height="580px" style="font-size:12px"
 		showEffect="slide" hideEffect="fold" resizable="true">
 		<h:form id="dialogForm">
-			<p:commandButton value="Show Results" update=""/>
+			<p:commandButton value="Show Results" update="" />
 
 		</h:form>
 	</p:dialog>

@@ -61,6 +61,12 @@ public class NodeDataArray {
     private String size;
     @JsonProperty("gatewayType")
     private Integer gatewayType;
+    @JsonProperty("property_1")
+    private String prop1;
+    @JsonProperty("property_2")
+    private String prop2;
+    @JsonProperty("property_3")
+    private String prop3;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -323,8 +329,56 @@ public class NodeDataArray {
     public void setSize(String size) {
         this.size = size;
     }
+    
+    /**
+     * @return
+     */
+    @JsonProperty("property_1")
+    public String getProp1() {
+		return prop1;
+	}
 
     /**
+     * @param prop1
+     */
+    @JsonProperty("property_1")
+	public void setProp1(String prop1) {
+		this.prop1 = prop1;
+	}
+
+    /**
+     * @return
+     */
+    @JsonProperty("property_2")
+	public String getProp2() {
+		return prop2;
+	}
+
+    /**
+     * @param prop2
+     */
+    @JsonProperty("property_2")
+	public void setProp2(String prop2) {
+		this.prop2 = prop2;
+	}
+
+    /**
+     * @return
+     */
+    @JsonProperty("property_3")
+	public String getProp3() {
+		return prop3;
+	}
+
+    /**
+     * @param prop3
+     */
+    @JsonProperty("property_3")
+    public void setProp3(String prop3) {
+		this.prop3 = prop3;
+	}
+
+	/**
      * 
      * @return
      *     The gatewayType

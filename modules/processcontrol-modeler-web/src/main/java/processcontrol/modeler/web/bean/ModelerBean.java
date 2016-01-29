@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.faces.bean.ManagedBean;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -18,6 +19,7 @@ import processcontrol.core.json.model.BPMNModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component("modelerBean")
+@ManagedBean
 @Scope("session")
 public class ModelerBean implements Serializable {
 	
