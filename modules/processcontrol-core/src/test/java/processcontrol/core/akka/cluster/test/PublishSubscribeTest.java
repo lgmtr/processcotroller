@@ -21,7 +21,7 @@ public class PublishSubscribeTest {
 	public void pubSubTest() {
 		Map<String, ProcessVariable> processVariables = new HashMap<String, ProcessVariable>();
 		final ActorSystem system = ActorSystemContainer.getInstance().getSystem();
-
+		
 		system.actorOf(Props.create(Subscriber.class, CHANNEL, processVariables), "subscriber1");
 		// another node
 		system.actorOf(Props.create(Subscriber.class, CHANNEL, processVariables), "subscriber2");
